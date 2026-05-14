@@ -1,0 +1,28 @@
+{
+    "name": "coe-nws-alerts",
+    "type": "module",
+    "prviate": true,
+    "version": "1.0.0",
+    "description": "Bring active National Weather Service alerts (Red Flag Warnings, Fire Weather Watches, Flash Flood Warnings, etc.) into the TAK ecosystem",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint *.ts",
+        "build": "tsc --build",
+        "test": "node --test --experimental-strip-types test/*.test.ts"
+    },
+    "author": "",
+    "license": "ISC",
+    "engines": { "node": ">= 24" },
+    "devDependencies": {
+        "eslint": "^10.0.0",
+        "typescript": "^6.0.0",
+        "typescript-eslint": "^8.58.1",
+        "@eslint/js": "^10.0.0",
+        "@types/geojson": "^7946.0.16",
+        "@types/node": "^24.0.0"
+    },
+    "dependencies": {
+        "@sinclair/typebox": "^0.34.0",
+        "@tak-ps/etl": "^10.0.0"
+    }
+}

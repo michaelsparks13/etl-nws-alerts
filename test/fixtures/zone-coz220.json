@@ -1,0 +1,22 @@
+{
+    "id": "https://api.weather.gov/zones/fire/COZ220",
+    "type": "Feature",
+    "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+            [-104.0, 38.0],
+            [-103.5, 38.0],
+            [-103.5, 38.5],
+            [-104.0, 38.5],
+            [-104.0, 38.0]
+        ]]
+    },
+    "properties": {
+        "@id": "https://api.weather.gov/zones/fire/COZ220",
+        "id": "COZ220",
+        "type": "fire",
+        "name": "Crowley County",
+        "state": "CO",
+        "cwa": ["PUB"]
+    }
+}

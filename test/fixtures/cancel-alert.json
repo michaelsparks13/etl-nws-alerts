@@ -1,0 +1,38 @@
+{
+    "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.example-cancel-001",
+    "type": "Feature",
+    "geometry": null,
+    "properties": {
+        "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.example-cancel-001",
+        "@type": "wx:Alert",
+        "id": "urn:oid:2.49.0.1.840.0.example-cancel-001",
+        "areaDesc": "Pueblo County",
+        "geocode": { "SAME": ["008101"], "UGC": ["COZ222"] },
+        "affectedZones": ["https://api.weather.gov/zones/fire/COZ222"],
+        "references": [{
+            "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.example-prior-001",
+            "identifier": "urn:oid:2.49.0.1.840.0.example-prior-001",
+            "sender": "w-nws.webmaster@noaa.gov",
+            "sent": "2026-05-13T18:00:00-06:00"
+        }],
+        "sent": "2026-05-14T10:00:00-06:00",
+        "effective": "2026-05-14T10:00:00-06:00",
+        "onset": null,
+        "expires": "2026-05-14T18:00:00-06:00",
+        "ends": null,
+        "status": "Actual",
+        "messageType": "Cancel",
+        "category": "Met",
+        "severity": "Severe",
+        "certainty": "Likely",
+        "urgency": "Expected",
+        "event": "Red Flag Warning",
+        "sender": "w-nws.webmaster@noaa.gov",
+        "senderName": "NWS Pueblo CO",
+        "headline": "Red Flag Warning has been cancelled",
+        "description": "Conditions no longer support critical fire weather.",
+        "instruction": null,
+        "response": "AllClear",
+        "parameters": {}
+    }
+}

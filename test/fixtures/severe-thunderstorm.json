@@ -1,0 +1,42 @@
+{
+    "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.example-svr-001",
+    "type": "Feature",
+    "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+            [-104.95, 39.65],
+            [-104.85, 39.65],
+            [-104.85, 39.75],
+            [-104.95, 39.75],
+            [-104.95, 39.65]
+        ]]
+    },
+    "properties": {
+        "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.example-svr-001",
+        "@type": "wx:Alert",
+        "id": "urn:oid:2.49.0.1.840.0.example-svr-001",
+        "areaDesc": "Arapahoe County",
+        "geocode": { "SAME": ["008005"], "UGC": ["COC005"] },
+        "affectedZones": [],
+        "references": [],
+        "sent": "2026-05-14T15:30:00-06:00",
+        "effective": "2026-05-14T15:30:00-06:00",
+        "onset": "2026-05-14T15:30:00-06:00",
+        "expires": "2026-05-14T16:30:00-06:00",
+        "ends": "2026-05-14T16:30:00-06:00",
+        "status": "Actual",
+        "messageType": "Alert",
+        "category": "Met",
+        "severity": "Severe",
+        "certainty": "Observed",
+        "urgency": "Immediate",
+        "event": "Severe Thunderstorm Warning",
+        "sender": "w-nws.webmaster@noaa.gov",
+        "senderName": "NWS Denver CO",
+        "headline": "Severe Thunderstorm Warning issued May 14 at 3:30PM MDT until May 14 at 4:30PM MDT by NWS Denver CO",
+        "description": "At 330 PM MDT, a severe thunderstorm was located 5 miles southeast of Aurora, moving east at 30 mph. HAZARD: 70 mph wind gusts and quarter size hail.",
+        "instruction": "For your protection move to an interior room on the lowest floor of a building.",
+        "response": "Shelter",
+        "parameters": {}
+    }
+}

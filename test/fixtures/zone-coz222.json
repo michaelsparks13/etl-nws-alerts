@@ -1,0 +1,22 @@
+{
+    "id": "https://api.weather.gov/zones/fire/COZ222",
+    "type": "Feature",
+    "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+            [-105.0, 38.0],
+            [-104.5, 38.0],
+            [-104.5, 38.5],
+            [-105.0, 38.5],
+            [-105.0, 38.0]
+        ]]
+    },
+    "properties": {
+        "@id": "https://api.weather.gov/zones/fire/COZ222",
+        "id": "COZ222",
+        "type": "fire",
+        "name": "Pueblo County",
+        "state": "CO",
+        "cwa": ["PUB"]
+    }
+}

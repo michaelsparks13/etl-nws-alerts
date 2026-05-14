@@ -1,0 +1,33 @@
+{
+    "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.example-ffa-001",
+    "type": "Feature",
+    "geometry": null,
+    "properties": {
+        "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.example-ffa-001",
+        "@type": "wx:Alert",
+        "id": "urn:oid:2.49.0.1.840.0.example-ffa-001",
+        "areaDesc": "Park County",
+        "geocode": { "SAME": ["008093"], "UGC": ["COC093"] },
+        "affectedZones": [],
+        "references": [],
+        "sent": "2026-05-14T08:00:00-06:00",
+        "effective": "2026-05-14T08:00:00-06:00",
+        "onset": "2026-05-14T14:00:00-06:00",
+        "expires": "2026-05-14T22:00:00-06:00",
+        "ends": null,
+        "status": "Actual",
+        "messageType": "Alert",
+        "category": "Met",
+        "severity": "Minor",
+        "certainty": "Possible",
+        "urgency": "Future",
+        "event": "Flash Flood Watch",
+        "sender": "w-nws.webmaster@noaa.gov",
+        "senderName": "NWS Boulder CO",
+        "headline": "Flash Flood Watch issued for the afternoon",
+        "description": "A Flash Flood Watch is in effect.",
+        "instruction": null,
+        "response": "Monitor",
+        "parameters": {}
+    }
+}

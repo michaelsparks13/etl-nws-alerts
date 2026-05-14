@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>etl-nws-alerts · preview</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #0b0f14;
+            --panel: #11161d;
+            --panel-2: #161c25;
+            --border: #1f2731;
+            --text: #d8e0ea;
+            --muted: #7d8a9d;
+            --accent: #5eead4;
+        }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+        #app { display: grid; grid-template-columns: 320px 1fr; height: 100vh; }
+        #sidebar { background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; }
+        #map { width: 100%; height: 100%; }
+        h1 { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 18px 18px 6px; }
+        .meta { padding: 0 18px; font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+        .meta strong { color: var(--text); font-weight: 600; }
+        fieldset { border: none; padding: 0 18px; margin: 0 0 14px; }
+        label { display: block; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+        input[type="text"], select { width: 100%; background: var(--panel-2); color: var(--text); border: 1px solid var(--border); padding: 8px 10px; font-size: 13px; border-radius: 6px; outline: none; }
+        input[type="text"]:focus, select:focus { border-color: var(--accent); }
+        .row { display: flex; gap: 8px; align-items: center; margin: 6px 0; font-size: 13px; }
+        .row input[type="checkbox"] { accent-color: var(--accent); }
+        button { width: 100%; background: var(--accent); color: #062520; border: none; padding: 10px 12px; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; letter-spacing: 0.04em; }
+        button:hover { filter: brightness(1.08); }
+        button:disabled { opacity: 0.5; cursor: progress; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 18px 14px; }
+        .stat { background: var(--panel-2); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); }
+        .stat .value { font-size: 18px; font-weight: 600; color: var(--text); }
+        .stat .label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+        .legend { padding: 0 18px 18px; font-size: 12px; }
+        .legend .item { display: flex; align-items: center; gap: 8px; margin: 4px 0; color: var(--muted); }
+        .swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.15); }
+        .popup-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; color: #062520; }
+        .popup-meta { font-size: 11px; color: #20484d; margin-bottom: 8px; }
+        .leaflet-popup-content { max-width: 360px; max-height: 320px; overflow-y: auto; }
+        #status { padding: 8px 18px; font-size: 12px; color: var(--muted); }
+        #status.error { color: #f87171; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <aside id="sidebar">
+        <h1>NWS Alerts Preview</h1>
+        <div class="meta">Live transformation pipeline output. Same code path as the deployed Lambda — fetches <code>api.weather.gov</code>, applies filters, maps to CoT shape.</div>
+
+        <fieldset>
+            <label for="area">Area (state codes, comma-separated)</label>
+            <input id="area" type="text" value="CO,WY,UT,NM,ID,MT" />
+        </fieldset>
+
+        <fieldset>
+            <label for="events">Events (comma-separated, blank = all)</label>
+            <input id="events" type="text" placeholder="e.g. Red Flag Warning, Flash Flood Warning" />
+        </fieldset>
+
+        <fieldset>
+            <label for="minSeverity">Minimum severity</label>
+            <select id="minSeverity">
+                <option value="">All</option>
+                <option value="Minor">Minor and above</option>
+                <option value="Moderate">Moderate and above</option>
+                <option value="Severe">Severe and above</option>
+                <option value="Extreme">Extreme only</option>
+            </select>
+        </fieldset>
+
+        <fieldset>
+            <div class="row"><input id="resolveZones" type="checkbox" checked /><label for="resolveZones" style="margin:0;text-transform:none;letter-spacing:normal;font-size:13px;color:var(--text)">Resolve zone polygons for null-geometry alerts</label></div>
+        </fieldset>
+
+        <fieldset>
+            <button id="refresh">Refresh</button>
+        </fieldset>
+
+        <div id="status">Loading…</div>
+
+        <div class="stat-grid">
+            <div class="stat"><div class="value" id="stat-upstream">—</div><div class="label">Upstream</div></div>
+            <div class="stat"><div class="value" id="stat-kept">—</div><div class="label">Kept</div></div>
+            <div class="stat"><div class="value" id="stat-null">—</div><div class="label">Null geom</div></div>
+            <div class="stat"><div class="value" id="stat-resolved">—</div><div class="label">Zone-resolved</div></div>
+        </div>
+
+        <div class="legend">
+            <div class="item"><span class="swatch" style="background:#dc2626"></span>Extreme</div>
+            <div class="item"><span class="swatch" style="background:#ea580c"></span>Severe</div>
+            <div class="item"><span class="swatch" style="background:#facc15"></span>Moderate</div>
+            <div class="item"><span class="swatch" style="background:#2563eb"></span>Minor</div>
+            <div class="item"><span class="swatch" style="background:#6b7280"></span>Unknown</div>
+        </div>
+    </aside>
+    <div id="map"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    const map = L.map('map', { zoomControl: true }).setView([39.5, -106], 5);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap, © CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19,
+    }).addTo(map);
+
+    let layer = null;
+    const $ = (id) => document.getElementById(id);
+    const statusEl = $('status');
+
+    function escapeHtml(s) {
+        if (s == null) return '';
+        return String(s)
+            .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+    }
+
+    function popup(props) {
+        const meta = props.metadata || {};
+        const remarks = (props.remarks || '').split('\n').map(escapeHtml).join('<br>');
+        return `
+            <div class="popup-title">${escapeHtml(props.callsign || meta.event || 'Alert')}</div>
+            <div class="popup-meta">${escapeHtml(meta.severity || '')} · ${escapeHtml(meta.urgency || '')} · ${escapeHtml(meta.certainty || '')}<br>
+            ${escapeHtml(meta.areaDesc || '')}<br>
+            <strong>start:</strong> ${escapeHtml(props.start || '—')}<br>
+            <strong>stale:</strong> ${escapeHtml(props.stale || '—')}</div>
+            <div style="font-size:11px;color:#1a3a3e;line-height:1.45">${remarks}</div>`;
+    }
+
+    function styleFn(feature) {
+        const p = feature.properties || {};
+        return {
+            color: p.stroke || '#6b7280',
+            weight: p['stroke-width'] ?? 2,
+            opacity: p['stroke-opacity'] ?? 0.85,
+            fillColor: p.fill || '#6b7280',
+            fillOpacity: p['fill-opacity'] ?? 0.25,
+        };
+    }
+
+    async function refresh() {
+        const btn = $('refresh');
+        btn.disabled = true;
+        statusEl.classList.remove('error');
+        statusEl.textContent = 'Fetching NWS feed…';
+
+        const params = new URLSearchParams();
+        params.set('area', $('area').value.trim());
+        const events = $('events').value.trim();
+        if (events) params.set('events', events);
+        const min = $('minSeverity').value;
+        if (min) params.set('minSeverity', min);
+        if ($('resolveZones').checked) params.set('resolveZones', '1');
+
+        try {
+            const res = await fetch('/alerts.geojson?' + params.toString());
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const fc = await res.json();
+
+            if (layer) layer.remove();
+            layer = L.geoJSON(fc, {
+                style: styleFn,
+                onEachFeature: (feature, lyr) => lyr.bindPopup(popup(feature.properties || {})),
+            }).addTo(map);
+
+            const bounds = layer.getBounds();
+            if (bounds.isValid()) map.fitBounds(bounds, { padding: [40, 40] });
+
+            $('stat-upstream').textContent = fc.metadata.upstreamCount;
+            $('stat-kept').textContent = fc.metadata.keptCount;
+            $('stat-null').textContent = fc.metadata.nullGeomCount;
+            $('stat-resolved').textContent = fc.metadata.zoneResolvedCount;
+            statusEl.textContent = `Updated ${new Date(fc.metadata.generatedAt).toLocaleTimeString()}`;
+        } catch (err) {
+            statusEl.textContent = 'Error: ' + err.message;
+            statusEl.classList.add('error');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    $('refresh').addEventListener('click', refresh);
+    refresh();
+</script>
+</body>
+</html>
